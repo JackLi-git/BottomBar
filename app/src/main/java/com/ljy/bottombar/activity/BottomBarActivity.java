@@ -20,17 +20,21 @@ public class BottomBarActivity extends AppCompatActivity {
     private static final String TAG = BottomBarActivity.class.getName();
     private BottomBar bottomBar;
     private List<BottomBarBean> bottomBarBeanList;
-    private Fragment currentFragment;
-    private CustomFragment webviewFragment;
-    private CustomFragment messageFragment;
-    private CustomFragment contactFragment;
-    private CustomFragment appFragment;
-    private CustomFragment settingFragment;
+    private int currentFragment = -1;
+    private List<Fragment> fragmentList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_bar);
+        fragmentList = new ArrayList<>();
+
+        fragmentList.add(CustomFragment.newInstance("首页"));
+        fragmentList.add(CustomFragment.newInstance("消息"));
+        fragmentList.add(CustomFragment.newInstance("应用"));
+        fragmentList.add(CustomFragment.newInstance("通讯录"));
+        fragmentList.add(CustomFragment.newInstance("设置"));
+
     }
 
     @Override
@@ -53,11 +57,6 @@ public class BottomBarActivity extends AppCompatActivity {
         bottomBarBeanList.add(bean);
         bean = new BottomBarBean(R.drawable.foot_myself, R.drawable.foot_myself_hover, 0, "我", false);
         bottomBarBeanList.add(bean);
-
-        if (currentFragment == null) {
-            currentFragment = webviewFragment;
-        }
-
         bottomBar.update(bottomBarBeanList);
 
         bottomBar.setOnBottomClickListener(new BottomBar.BottomBarClickListener() {
@@ -66,6 +65,14 @@ public class BottomBarActivity extends AppCompatActivity {
                 setSelectedPage(i);
             }
         });
+
+        int msgCount = 11;
+        for (BottomBarBean bottomBarBean: bottomBarBeanList){
+            bottomBarBean.setMsgCount(msgCount);
+            msgCount = msgCount + 11;
+        }
+
+        bottomBar.updateMsgCount(bottomBarBeanList);
     }
 
     //碎片选择
@@ -73,52 +80,16 @@ public class BottomBarActivity extends AppCompatActivity {
         Log.d(TAG, "setSelectedPage: " + selected);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-        if (currentFragment != null) {
-            transaction.hide(currentFragment);
-        }
-
-        switch (selected) {
-            case 0:
-                if (webviewFragment == null) {
-                    webviewFragment = CustomFragment.newInstance("首页");
-                    transaction.add(R.id.selected_fragment, webviewFragment);
+        if (selected >= 0 && selected < fragmentList.size()){
+            Fragment fragment = fragmentList.get(selected);
+            if (!fragment.isAdded())
+                transaction.replace(R.id.selected_fragment, fragment);
+            else {
+                if (currentFragment != -1) {
+                    transaction.hide(fragmentList.get(currentFragment));
                 }
-                transaction.show(webviewFragment);
-                currentFragment = webviewFragment;
-                break;
-            case 1:
-                if (messageFragment == null) {
-                    messageFragment = CustomFragment.newInstance("信息");
-                    transaction.add(R.id.selected_fragment, this.messageFragment, "conversation");
-                }
-                transaction.show(messageFragment);
-                currentFragment = messageFragment;
-                break;
-            case 2:
-                if (appFragment == null) {
-                    appFragment = CustomFragment.newInstance("应用");
-                    transaction.add(R.id.selected_fragment, appFragment);
-                }
-                transaction.show(appFragment);
-                currentFragment = appFragment;
-
-                break;
-            case 3:
-                if (contactFragment == null) {
-                    contactFragment = CustomFragment.newInstance("通讯录");
-                    transaction.add(R.id.selected_fragment, contactFragment);
-                }
-                transaction.show(contactFragment);
-                currentFragment = contactFragment;
-                break;
-            case 4:
-                if (settingFragment == null) {
-                    settingFragment = CustomFragment.newInstance("设置");
-                    transaction.add(R.id.selected_fragment, settingFragment);
-                }
-                transaction.show(settingFragment);
-                currentFragment = settingFragment;
-                break;
+                transaction.show(fragment);
+            }
         }
         transaction.commit();
     }
