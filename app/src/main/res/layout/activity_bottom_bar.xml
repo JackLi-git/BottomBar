@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_bottom_bar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/selected_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <com.ljy.bottombar.view.BottomBar
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bottom_bar_shape"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
